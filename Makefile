@@ -27,3 +27,7 @@ pumactl = $(bundle) exec pumactl
 .m4.rb:
 	$(munge) $(<) > $(@)
 
+install: install.libraries
+
+install.libraries:
+	$(bundle) install
