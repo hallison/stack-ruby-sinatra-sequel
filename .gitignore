@@ -1,4 +1,5 @@
 .vimsession
 *.bkp
+**/version.rb
 tmp/**
 vendor/**

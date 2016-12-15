@@ -31,3 +31,8 @@ install: install.libraries
 
 install.libraries:
 	$(bundle) install
+
+version: lib/$(name)/version.rb
+
+clean:
+	rm -rf lib/$(name)/version.rb
