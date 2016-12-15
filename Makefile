@@ -28,6 +28,10 @@ pumactl = $(bundle) exec pumactl
 
 .SUFFIXES: .m4 .rb
 
+#? Default target
+#? $ make [check]
+all: check
+
 .m4.rb:
 	$(munge) $(<) > $(@)
 
@@ -38,9 +42,12 @@ install.libraries:
 
 version: lib/$(name)/version.rb
 
-# make db.migrate environment=[development]
+#?
+#? Database migration
+#? $ make db.migrate environment=[development]
 db.migrate: db.migrate.up
 
+#? $ make db.migrate.[up|down]
 migrate = $(sequel) -e $(environment) -E -l $(log) -m $(migrations)
 db.migrate.up:
 	$(migrate) $(connection).yml
@@ -48,9 +55,24 @@ db.migrate.up:
 db.migrate.down:
 	$(migrate) -M $(changeset) $(connection).yml
 
-# make db.console environment=[development]
+#? $ make db.console environment=[development]
 db.console:
 	$(sequel) -r $(name) -e $(environment) $(connection).yml
 
+#?
+#? Clean sources
+#? $ make clean
 clean:
 	rm -rf lib/$(name)/version.rb
+
+#?
+#? Check and test
+#? $ make check
+check: check.models check.controllers
+
+#? $ make check.[models|controllers]
+check.models check.controllers:
+	$(ruby) test/check.rb $(@:check.%=%)
+
+help:
+	@grep '^#?' Makefile | cut -c4-
