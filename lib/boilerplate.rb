@@ -23,6 +23,10 @@ module Boilerplate
       load_yaml(:db, file)
     end
 
+    def application_config
+      @application_config ||= load_config(:application)
+    end
+
     def database_config
       @database_config ||= load_config(:database)
     end
