@@ -42,9 +42,23 @@ install.libraries:
 
 version: lib/$(name)/version.rb
 
+console: version
+	$(pry) -r $(name) -e 'include $(module)'
+
+#?
+#? Development HTTP server
+#? $ make server environment=[development|production]
+server: server.start
+
+#? $ make server.[start|stop|restart]
+server.start server.stop: version
+	$(pumactl) --pidfile tmp/$(environment).pid $(@:server.%=%)
+
+server.restart: server.stop server.start
+
 #?
 #? Database migration
-#? $ make db.migrate environment=[development]
+#? $ make db.migrate environment=[development|production]
 db.migrate: db.migrate.up
 
 #? $ make db.migrate.[up|down]
@@ -55,7 +69,7 @@ db.migrate.up:
 db.migrate.down:
 	$(migrate) -M $(changeset) $(connection).yml
 
-#? $ make db.console environment=[development]
+#? $ make db.console environment=[development|production]
 db.console:
 	$(sequel) -r $(name) -e $(environment) $(connection).yml
 
@@ -64,6 +78,7 @@ db.console:
 #? $ make clean
 clean:
 	rm -rf lib/$(name)/version.rb
+	rm -rf public/vendor/*
 
 #?
 #? Check and test
