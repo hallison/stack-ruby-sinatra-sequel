@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <%=partial 'layout_http_head'%>
+</head>
+
+<body>
+  <div class="layout">
+    <main class="content">
+      <%=yield%>
+    </main>
+  </div>
+  <%=yield_content :script%>
+</body>
+</html>
