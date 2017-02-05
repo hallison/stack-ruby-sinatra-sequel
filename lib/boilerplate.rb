@@ -70,15 +70,30 @@ module Boilerplate
       klass = Sequel::Model(Database[dataset_name])
       # Oracle
       # klass.dataset = klass.dataset.sequence("s_#{dataset_name}".to_sym)
+      klass.include Methods
       klass
     end
 
-    def param_name
-      id || ''
-    end
+    module Methods
+      def param_name
+        id || ''
+      end
 
-    def to_url_param(prefix = nil)
-      [prefix, param_name].compact.join('/')
+      def to_url_param(prefix = nil)
+        [prefix, param_name].compact.join('/')
+      end
+
+      def self.included(klass)
+        klass.extend ClassMethods
+      end
+
+      module ClassMethods
+        def column_aliases
+          columns.map do |column|
+            "#{table_name}__#{column}".to_sym
+          end
+        end
+      end
     end
   end # Model
 
