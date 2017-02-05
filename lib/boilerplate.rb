@@ -45,6 +45,46 @@ module Boilerplate
       @database_config ||= load_config(:database)
     end
 
+    def routing
+      @routing ||= application_config[:routing].each_with_object Hash.new do |(id, route), routes|
+        (const_name = controllers[id]) && (routes[id] = [const_name, route[:root]])
+        (const_name.nil?) && (warn "--> Routing to '#{id}' was not found")
+        routes
+      end
+      @routing
+    end
+
+    def mapping
+      @mapping ||= application_config[:routing].each_with_object Hash.new do |(id, route), maps|
+        actions = (route[:actions] || {})
+        maps[id] = actions.merge index: '/'
+        maps
+      end
+      @mapping
+    end
+
+    alias sections mapping
+
+    def controllers
+      @controllers ||= constants.grep(/Controller/).each_with_object Hash.new do |const_name, hash|
+        hash[const_get(const_name).controller_id] = const_get(const_name)
+        hash
+      end
+      @controllers
+    end
+
+    def sources_from(*pathnames)
+      pathnames.each_with_object({}) do |pathname, sources|
+        Dir[root_directory.join('app').join(pathname.to_s).join('*.rb')].each do |source|
+          id = File.basename(source.gsub(/.*\/#{pathname}/, ''), '.rb')
+          sources[id.to_sym] = {
+            require_path: "#{pathname}/#{id}",
+            const_name: id.camelcase.to_sym
+          }
+        end
+      end
+    end
+
   private
 
     def load_yaml(prefix, file)
@@ -110,5 +150,13 @@ module Boilerplate
       end
     end
   end # Model
+
+  def self.autoload_sources
+    sources_from(:models, :helpers, :controllers).each do |id, source|
+      autoload source[:const_name], source[:require_path]
+    end
+  end
+
+  autoload_sources
 
 end # Boilerplate
