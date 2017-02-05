@@ -4,15 +4,15 @@ environment @environment
 
 tag 'boilerplate'
 
-if @environment == 'development'
+if @environment == 'production'
+  daemonize true
+  bind "unix:///tmp/boilerplate-#{@environment}.sock"
+  stdout_redirect "log/#{@environment}.out.log", "log/#{@environment}.err.log", true
+else
+  daemonize false
   quiet false
   bind 'tcp://0.0.0.0:8090'
-else
-  bind "unix:///tmp/boilerplate-#{@environment}.sock"
-  daemonize true
 end
-
-stdout_redirect "log/#{@environment}.out.log", "log/#{@environment}.err.log", true
 
 pidfile "tmp/boilerplate-#{@environment}.pid"
 
