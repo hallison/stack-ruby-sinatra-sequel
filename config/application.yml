@@ -4,3 +4,12 @@
   :home:
     :root: /
     :actions:
+  :account:
+    :root: /conta
+    :actions:
+      :new: /nova-conta
+  :security:
+    :root: /secao
+    :actions:
+      :login: /login
+      :logout: /logout
