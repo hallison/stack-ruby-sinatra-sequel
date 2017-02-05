@@ -1,0 +1,7 @@
+<%=partial 'account/form', locals: { path: action_for(:account, :new), method: :post }%>
+
+<%if @user.new?%>
+  <a href="<%=action_for :security, :login%>" class="">
+    Acessar
+  </a>
+<%end%>

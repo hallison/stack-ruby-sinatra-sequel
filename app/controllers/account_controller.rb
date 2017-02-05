@@ -15,7 +15,7 @@ class AccountController < ApplicationController
 
   get action(:index), authenticate: true do
     @user ||= User[session[:user][:id]]
-    view 'account/page'
+    view 'account/index'
   end
 
   get action(:new) do
@@ -26,8 +26,8 @@ class AccountController < ApplicationController
   post action(:new) do
     @user = User.new params[:user]
 
-    if params[:account]
-      @user.set_password *params[:account].values
+    if params[:password] && params[:password].values.first == params[:password].values.last
+      @user.password = params[:password][:phrase]
     else
       notification.update level: :error, message: 'Password and confirmation are required'
     end
