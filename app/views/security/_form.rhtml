@@ -1,0 +1,17 @@
+<form action="<%=action_for :security, :login%>" method="post" enctype="application/x-www-form-urlencoded" class="">
+  <div class="">
+    <div class="">
+      <label for="user_username" class="">User</label>
+      <input type="text" id="user_username" name="user[username]" class=""/>
+    </div>
+    <div class="">
+      <label for="user_password" class="mdl-textfield__label">Password</label>
+      <input type="password" id="user_password" name="user[password]" class=""/>
+    </div>
+  </div>
+
+  <div class="">
+    <button class="">Ok</button>
+    <a href="<%=action_for :home%>" class="">Cancel</a>
+  </div>
+</form>
