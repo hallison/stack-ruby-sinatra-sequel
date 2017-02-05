@@ -5,6 +5,20 @@ require 'yaml'
 require 'sequel'
 require 'boilerplate/version'
 
+class String
+  def camelcase
+    gsub('/', ' :: ').split(/[ _]/).map(&:capitalize).join
+  end
+
+  def underscore
+    gsub(/::/, '/').
+    gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+    gsub(/([a-z\d])([A-Z])/,'\1_\2').
+    tr("-", "_").
+    downcase
+  end
+end
+
 module Boilerplate
   class << self
     def root_directory
