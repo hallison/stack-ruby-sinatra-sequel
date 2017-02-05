@@ -23,6 +23,7 @@ class ApplicationController < Sinatra::Base
   helpers Sinatra::ContentFor
 
   helpers ApplicationHelper
+  helpers UrlHelper
   helpers ViewHelper
 
   set :page, {
