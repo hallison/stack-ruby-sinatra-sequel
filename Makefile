@@ -77,6 +77,7 @@ db.console:
 #? Clean sources
 #? $ make clean
 clean:
+	find -iname '*.bkp' | xargs rm
 	rm -rf lib/$(name)/version.rb
 	rm -rf public/vendor/*
 
