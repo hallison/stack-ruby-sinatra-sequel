@@ -35,7 +35,7 @@ all: check
 .m4.rb:
 	$(munge) $(<) > $(@)
 
-install: install.libraries
+install: install.libraries db.migrate
 
 install.libraries:
 	$(bundle) install
