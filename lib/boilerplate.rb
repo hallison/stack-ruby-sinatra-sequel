@@ -85,6 +85,12 @@ module Boilerplate
       end
     end
 
+    def autoload_sources(*paths)
+      sources_from(*paths).each do |id, source|
+        autoload source[:const_name], source[:require_path]
+      end
+    end
+
   private
 
     def load_yaml(prefix, file)
@@ -151,12 +157,6 @@ module Boilerplate
     end
   end # Model
 
-  def self.autoload_sources
-    sources_from(:models, :helpers, :controllers).each do |id, source|
-      autoload source[:const_name], source[:require_path]
-    end
-  end
-
-  autoload_sources
+  autoload_sources :models, :helpers, :controllers
 
 end # Boilerplate
