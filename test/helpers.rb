@@ -1,22 +1,47 @@
+ENV['RACK_ENV'] = 'test'
+
 $LOAD_PATH.unshift 'lib'
 $LOAD_PATH.unshift 'app'
 
 require 'minitest/autorun'
-require 'minitest/rg'
 require 'rack/test'
 require 'boilerplate'
 
-ENV['RACK_ENV'] = 'test'
+module Boilerplate
+  def self.root_directory
+    Pathname.new(File.expand_path("#{File.dirname(__FILE__)}/fixtures"))
+  end
+end
 
 module Minitest
   class Test
-    def fixtures(*args)
-      Boilerplate.root_directory.join('test','fixtures').join(*(args.map(&:to_s)))
-    end
-
     def debugger
     end unless defined? debugger
 
+    def fixtures
+      datalist = [
+        :users
+      ]
+      @fixtures ||= datalist.each_with_object Hash.new do |id, list|
+        list[id] = Boilerplate.load_data(id)
+        list
+      end
+    end
+
+    def load_data(model)
+      fixtures[model.table_name].symbolize_keys.each_with_object Hash.new do |(id, data), list|
+        params = data.clone
+        yield params if block_given?
+        list[id] = model.find(params) || model.create(params)
+        list
+      end
+    end
+
+    def database
+      @database ||= {}
+      @database[:users] ||= load_data(User)
+      @database
+    end
   end
 
   module Assertions

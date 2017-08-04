@@ -1,0 +1,15 @@
+first:
+  user:
+    username: 'hallison'
+    name: 'Hallison Batista'
+    email: 'hallison@example.com'
+  password:
+    phrase: 'h411150n'
+
+second:
+  user:
+    username: 'tobias'
+    name: 'Tobias Jessé'
+    email: 'tobias@exemple.org'
+  password:
+    phrase: '708145'

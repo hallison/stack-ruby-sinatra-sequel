@@ -1,0 +1,14 @@
+:development: &default
+  :debug: true
+  :adapter: sqlite
+  :database: boilerplate.db
+:test: *default
+:stage: *default
+:production:
+  :debug: false
+  :adapter: mysql
+  :host: localhost
+  :port: 3306
+  :database: boilerplate
+  :user: boilerplate
+  :password: s3kr37

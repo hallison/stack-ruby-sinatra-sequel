@@ -1,0 +1,15 @@
+:title: 'Boilerplate'
+
+:routing:
+  :home:
+    :root: /
+    :actions:
+  :account:
+    :root: /account
+    :actions:
+      :new: /new
+  :security:
+    :root: /session
+    :actions:
+      :login: /login
+      :logout: /logout

@@ -1,6 +1,6 @@
 include Boilerplate
 
-describe 'User' do
+describe User do
   before do
     User.where(username: 'selinakyle').delete
   end
