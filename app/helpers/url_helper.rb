@@ -24,7 +24,7 @@ module UrlHelper
     end
     (slashes.size > 0) && (subpath = "/" + slashes.join('/'))
     query && (params = ("?" + query.map{|k,v|"#{k}=#{v}"}.join("&")))
-    # url_path = sections[path] && sections[path][:url_path] || path.to_s
+    url_path = routing[path] && routing[path].last || path.to_s
     url_path = "/#{url_path}#{subpath}"
     url_path = url_path.squeeze('/')
     "#{context_path}#{url_path}#{params}"
@@ -33,10 +33,11 @@ module UrlHelper
   def action_for(controller, action = nil, params = {})
     route = routing[controller].last
     map   = mapping[controller][action || :index]
+    map   = map.set_params(params)
 
     path = "#{context_path}#{route}#{map}"
     path = !params.empty? && format("%s?%s", path, params.map{|k,v|"#{k}=#{v}"}.join("&")) || path
-    path = path.squeeze '/'
+    path = path.squeeze('/')
     "#{context_path}#{path}"
   end
 

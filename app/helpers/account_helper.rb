@@ -2,11 +2,11 @@ module Boilerplate
 
 module AccountHelper
   def username_pattern
-    User::USERNAME_PATTERN
+    Boilerplate::PATTERN_USERNAME
   end
 
   def email_pattern
-    User::EMAIL_PATTERN
+    Boilerplate::PATTERN_EMAIL
   end
 
   def profiles
