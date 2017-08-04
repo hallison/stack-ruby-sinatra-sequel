@@ -12,7 +12,6 @@ environment ?= development
 connection   = config/database
 migrations   = db/migrations
 log          = log/$(environment).db.log
-changeset    = -1
 
 munge  = m4
 munge += -D_NAME='$(name)'
@@ -22,7 +21,6 @@ munge += -D_ENVIRONMENT='$(environment)'
 
 ruby    = exec ruby -S
 bundle  = $(ruby) bundle
-sequel  = $(bundle) exec sequel -Ilib -Iapp -t
 pry     = $(bundle) exec pry -Ilib -Iapp
 pumactl = $(bundle) exec pumactl
 
@@ -35,7 +33,7 @@ all: check
 .m4.rb:
 	$(munge) $(<) > $(@)
 
-install: install.libraries db.migrate
+install: install.libraries db.migrate install.resources
 
 install.libraries:
 	$(bundle) install
@@ -43,7 +41,7 @@ install.libraries:
 version: lib/$(name)/version.rb
 
 console: version
-	$(pry) -r $(name) -e 'include $(module)'
+	RACK_ENV=$(environment) $(pry) -r $(name) -e 'include $(module)'
 
 #?
 #? Development HTTP server
@@ -80,9 +78,23 @@ clean:
 #? $ make check
 check: check.models check.controllers
 
-#? $ make check.[models|controllers]
+#? $ make check.[models|controllers] source=[NAME]
 check.models check.controllers:
-	$(ruby) test/check.rb $(@:check.%=%)
+	$(ruby) test/check.rb $(@:check.%=%) $(source)
+
+#?
+#? Up and downgrade
+#? $ make upgrade
+upgrade: clean install version db.migrate.up db.bootstrap db.hotfix
+
+#? $ make downgrade
+downgrade: clean version db.migrate.down
+
+#?
+#? Distributable file
+#? $ make dist
+dist: version
+	git archive --format=zip --output=$(name)-$(version).zip --prefix=$(name)/ --verbose $(version)
 
 help:
 	@grep '^#?' Makefile | cut -c4-
