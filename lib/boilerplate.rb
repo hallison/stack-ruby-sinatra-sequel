@@ -1,36 +1,37 @@
 # encoding: utf-8
 
+# ENV['NLS_LANG'] = 'AMERICAN_AMERICA.UTF8'
+# ENV['NLS_SORT'] = 'BINARY_AI'
+# ENV['NLS_COMP'] = 'LINGUISTIC'
+# DEFAULT_OCI8_ENCODING = 'utf-8'
+
+require 'date'
 require 'pathname'
 require 'yaml'
 require 'sequel'
+require 'json'
+require 'boilerplate/extensions'
 require 'boilerplate/version'
 
-class String
-  def camelcase
-    gsub('/', ' :: ').split(/[ _]/).map(&:capitalize).join
-  end
-
-  def underscore
-    gsub(/::/, '/').
-    gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-    gsub(/([a-z\d])([A-Z])/,'\1_\2').
-    tr("-", "_").
-    downcase
-  end
-end
-
 module Boilerplate
+  PATTERN_EMAIL = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
+  PATTERN_USERNAME = /^[a-zA-Z][a-zA-Z0-9\-_\.]{6,32}$/
+
   class << self
     def root_directory
       @root_directory ||= Pathname.new(File.expand_path("#{File.basename(__FILE__)}/.."))
     end
 
     def environment
-      ENV['RACK_ENV'].nil? ? :development : ENV['RACK_ENV'].to_sym
+      @environment ||= ENV['RACK_ENV'] ? ENV['RACK_ENV'].to_sym : :development
+    end
+
+    def set_environment_to(new_environment)
+      @environment = new_environment.to_sym
     end
 
     def load_config(file)
-      load_yaml(:config, file)
+      load_yaml(:config, file).symbolize_keys
     end
 
     def load_data(file)
@@ -94,7 +95,8 @@ module Boilerplate
   private
 
     def load_yaml(prefix, file)
-      YAML.load_file(root_directory.join(prefix.to_s, "#{file}.yml"))
+      require 'erb'
+      YAML.load(ERB.new(root_directory.join(prefix.to_s, "#{file}.yml").read).result)
     end
   end
 
@@ -110,13 +112,22 @@ module Boilerplate
       attr_reader :options
 
       def connection(env = Boilerplate.environment)
-        @options = Boilerplate.database_config[env.to_sym]
-        @options[:prefetch_rows] = 50
-        if @options[:debug]
+        options = Boilerplate.database_config[env.to_sym]
+        options[:prefetch_rows] = 50
+        if options[:debug]
           require 'logger'
-          @options[:loggers] = [Logger.new($stdout)]
+          options[:loggers] = [Logger.new($stdout)]
         end
-        @connection ||= Sequel.connect @options
+        @connection ||= Sequel.connect(options)
+      end
+
+      def migration_path
+        Boilerplate.root_directory.join('db', "migrations")
+      end
+
+      def migrator(target = 999)
+        Sequel.extension(:migration)
+        Sequel::IntegerMigrator.new(connection, migration_path, target: target)
       end
 
       def [](dataset)
@@ -131,20 +142,42 @@ module Boilerplate
       # Oracle
       # klass.dataset = klass.dataset.sequence("s_#{dataset_name}".to_sym)
       klass.include Methods
+      klass.plugin :validation_helpers
+      klass.plugin :whitelist_security
       klass
     end
 
     module Methods
+      def self.included(klass)
+        klass.extend ClassMethods
+      end
+
       def param_name
-        id || ''
+        (id || '').to_s
       end
 
       def to_url_param(prefix = nil)
-        [prefix, param_name].compact.join('/')
+        [prefix, param_name_slug].compact.join('/')
       end
 
-      def self.included(klass)
-        klass.extend ClassMethods
+      def before_create
+        (self.class.columns && self.class.columns.include?(:creation_date)) && (self.creation_date ||= Time.now)
+        super
+      end
+
+      def before_save
+        (self.class.columns && self.class.columns.include?(:modification_date)) && (self.modification_date = Time.now)
+        super
+      end
+
+    protected
+
+      def param_name_slug
+        param_name.normalize.downcase.gsub(/\W/, '-').sub(/-$/,'').squeeze('-')
+      end
+
+      def generate_uuid(*keys)
+        keys.join.normalize.gsub(/\W/,'').downcase.md5
       end
 
       module ClassMethods
@@ -158,5 +191,4 @@ module Boilerplate
   end # Model
 
   autoload_sources :models, :helpers, :controllers
-
 end # Boilerplate

@@ -58,26 +58,20 @@ server.restart: server.stop server.start
 
 #?
 #? Database migration
-#? $ make db.migrate environment=[development|production]
-db.migrate: db.migrate.up
+#? $ make db.migrate environment=[development|production] target=[999]
+db.migrate: version
+	$(ruby) db/$(@:db.%=%).rb $(environment) $(target)
 
-#? $ make db.migrate.[up|down]
-migrate = $(sequel) -e $(environment) -E -l $(log) -m $(migrations)
-db.migrate.up:
-	$(migrate) $(connection).yml
-
-db.migrate.down:
-	$(migrate) -M $(changeset) $(connection).yml
-
-#? $ make db.console environment=[development|production]
-db.console:
-	$(sequel) -r $(name) -e $(environment) $(connection).yml
+#? $ make db.bootstrap
+#? $ make db.hotfix
+db.migrations db.bootstrap db.hotfix: version
+	$(ruby) db/$(@:db.%=%).rb $(environment) v$(version)
 
 #?
 #? Clean sources
 #? $ make clean
 clean:
-	find -iname '*.bkp' | xargs rm
+	rm -f $(name).db
 	rm -rf lib/$(name)/version.rb
 	rm -rf public/vendor/*
 
