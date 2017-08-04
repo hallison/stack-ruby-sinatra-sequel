@@ -2,14 +2,14 @@ Sequel.migration do
   up do
     create_table :users do
       primary_key :id, type: :Bignum
-      string :username, size: 64, null: false, unique: true
-      string :name, null: false
-      string :email, null: false
-      string :signature, size: 64, null: false
+      varchar :username, size: 64, null: false, unique: true
+      varchar :name, size: 255, null: false
+      varchar :email, size: 128, null: false, unique: true
+      varchar :signature, size: 64, null: false
       boolean :administrator, default: false
       boolean :moderator, default: false
-      date :created_at, default: Date.today
-
+      timestamp :create_date
+      timestamp :update_date
       index [:username]
     end
   end
