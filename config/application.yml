@@ -13,3 +13,24 @@
     :actions:
       :login: /login
       :logout: /logout
+  # :dashboard:
+  #   :root: /painel
+  #   :actions:
+  #     :users: /usuarios
+
+:email:
+  # :address: 'smtps.boilerplate.com'
+  # :port: 587
+  # :user_name:
+  # :password:
+  # :authentication: plain
+  # :enable_starttls_auto: false
+  # :openssl_verify_mode: none
+  :address: smtp.boilerplate.com
+  :port: 25
+  :domain: boilerplate.com
+
+:tracker:
+  :title: GitLab
+  :url: http://gitlab.com/api/v3/projects/#
+  :token:

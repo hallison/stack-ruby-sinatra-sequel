@@ -5,8 +5,9 @@ environment @environment
 tag 'boilerplate'
 
 if @environment == 'production'
+  @url = ENV['PORT'] && "tcp://0.0.0.0:#{ENV['PORT']}" || "unix:///tmp/boilerplate-#{@environment}.sock"
   daemonize true
-  bind "unix:///tmp/boilerplate-#{@environment}.sock"
+  bind @url
   stdout_redirect "log/#{@environment}.out.log", "log/#{@environment}.err.log", true
 else
   daemonize false
