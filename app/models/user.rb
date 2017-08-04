@@ -7,8 +7,6 @@ module Boilerplate
 class User < Model[:users]
   include BCrypt
 
-  EMAIL_PATTERN = /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i
-  USERNAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9\-_\.]{6,32}$/
   PROFILES = %w{
     administrator
     moderator
@@ -29,7 +27,7 @@ class User < Model[:users]
     validates_unique :username, message: 'já existe'
     validates_min_length 6, :username, message: lambda{ |n| "deve ter no mínimo #{n} caracteres" }
     validates_max_length 32, :username, message: lambda{ |n| "deve ser de até #{n} caracteres" }
-    validates_format USERNAME_PATTERN, :username, message: 'deve possuir um formato válido'
+    validates_format PATTERN_USERNAME, :username, message: 'deve possuir um formato válido com letras, números e caracteres "_", "." ou "-"'
 
     validates_presence :name, message: 'deve ser atribuído'
     validates_max_length 64, :name, message: lambda{ |n| "deve ser de até #{n} caracteres" }
@@ -37,7 +35,7 @@ class User < Model[:users]
     validates_presence :email, message: 'deve ser atribuído'
     validates_unique :email, message: 'já foi registrado'
     validates_max_length 256, :email, message: lambda{ |n| "deve ser de até #{n} caracteres" }
-    validates_format EMAIL_PATTERN, :email, message: 'deve possuir um formato válido'
+    validates_format PATTERN_EMAIL, :email, message: 'deve possuir um formato válido'
 
     validates_password_changed
   end
@@ -64,7 +62,7 @@ class User < Model[:users]
 
   def profiles
     PROFILES.select do |profile|
-      send(profile) && (send(profile) == 'S')
+      send(profile)
     end << 'user'
   end
 
@@ -73,7 +71,7 @@ class User < Model[:users]
   end
 
   def param_name
-    "#{id}-#{username.downcase}"
+    "#{id}-#{username}"
   end
 
 protected
@@ -101,28 +99,9 @@ private
     ((password && confirmation) && !(password.empty? && confirmation.empty?)) && (password == confirmation)
   end
 
-  class << self
-    def authenticate(options)
-      usuario = find username: options[:username]
-      usuario && (usuario.authenticate? options[:password]) && usuario
-    end
-
-    def by_letra_inicial(*letras)
-      where("UPPER(SUBSTR(name, 1, 1)) IN ?",  letras.map(&:upcase))
-    end
-
-    def search(termo)
-      regexp_like(username: termo, name: termo)
-    end
-
-  private
-
-    def regexp_like(hash)
-      expressao = hash.map do |field, pattern|
-        format("REGEXP_LIKE(#{field}, '%s', 'i')", pattern.to_s)
-      end.join(' OR ')
-      where(expressao)
-    end
+  def self.authenticate(options)
+    usuario = find(username: options[:username])
+    usuario && (usuario.authenticate? options[:password]) && usuario
   end
 end
 
