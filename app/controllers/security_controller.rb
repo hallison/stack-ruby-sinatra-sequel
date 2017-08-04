@@ -30,7 +30,7 @@ class SecurityController < ApplicationController
   post action(:logout) do
     @user = nil
     disconect!
-    redirect(to(action_for(:home)), 303)
+    redirect(action_for(:home), 303)
   end
 end
 

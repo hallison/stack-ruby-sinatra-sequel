@@ -4,7 +4,7 @@ module Boilerplate
 
 class HomeController < ApplicationController
   before do
-    settings.page.update title: 'Wellcome'
+    page.update title: 'Wellcome'
   end
 
   get action(:index) do

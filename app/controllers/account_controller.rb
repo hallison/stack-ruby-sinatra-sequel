@@ -6,7 +6,7 @@ class AccountController < ApplicationController
   helpers AccountHelper
 
   before do
-    settings.page.update title: 'Account'
+    page.update(title: 'Account')
   end
 
   before "#{action :index}:id/?:action?" do |id, action|
@@ -15,30 +15,31 @@ class AccountController < ApplicationController
 
   get action(:index), authenticate: true do
     @user ||= User[session[:user][:id]]
-    view 'account/index'
+    view('account/index')
   end
 
   get action(:new) do
     @user = User.new
-    view 'account/new'
+    view('account/new')
   end
 
   post action(:new) do
-    @user = User.new params[:user]
+    @user = User.new(params[:user])
 
     if params[:password] && params[:password].values.first == params[:password].values.last
       @user.password = params[:password][:phrase]
     else
-      notification.update level: :error, message: 'Password and confirmation are required'
+      notification.update(level: :error, message: 'Password and confirmation are required')
     end
 
     if @user.valid?
       @user.save
-      notification.update level: :information, message: 'Account created'
-      redirect action_for(:account, :index)
+      authenticate(@user.id, @user.email, *@user.profiles)
+      notification.update(level: :information, message: 'Account created')
+      redirect(action_for(:account, :index), 303)
     else
-      notification.update level: :error, message: 'Errors on creates your account'
-      view 'account/new'
+      notification.update(level: :error, message: 'Errors on creates your account')
+      view('account/new')
     end
   end
 end

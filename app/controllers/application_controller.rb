@@ -12,12 +12,12 @@ class ApplicationController < Sinatra::Base
   end
 
   def self.controller_id
-    self.name.to_s.gsub(/^.*::/, '').underscore.gsub(/_controller/, '').to_sym 
+    self.name.to_s.gsub(/^.*::/, '').underscore.gsub(/_controller/, '').to_sym
   end
 
   configure :development do
     register Sinatra::Reloader
-    dont_reload 'boilerplate/version'
+    dont_reload('boilerplate/version')
   end
 
   helpers Sinatra::ContentFor
@@ -39,24 +39,24 @@ class ApplicationController < Sinatra::Base
   set :authenticate do |required|
     condition do
       if required && !authenticated?
-        notification.update level: :warning, message: "Você precisa estar autenticado."
-        redirect action_for(:security), 303
+        notification.update(level: :warning, message: "Você precisa estar autenticado.")
+        redirect(action_for(:security), 303)
       end
     end
   end
   set :authorize do |action|
     condition do
       unless authorized?
-        notification.update level: :warning, message: "Você não possui permissão para #{action}."
-        redirect action_for(:home), 303
+        notification.update(level: :warning, message: "Você não possui permissão para #{action}.")
+        redirect(action_for(:home), 303)
       end
     end
   end
   set :authorize_only do |role|
     condition do
       unless authorized_by? role
-        notification.update level: :warning, message: "Você não possui permissão para acessar esta página."
-        redirect action_for(:home), 303
+        notification.update(level: :warning, message: "Você não possui permissão para acessar esta página.")
+        redirect(action_for(:home), 303)
       end
     end
   end
@@ -65,7 +65,7 @@ class ApplicationController < Sinatra::Base
   enable :sessions
 
   after do
-    settings.page.update path: request.path
+    page.update(path: request.path)
   end
 end
 
