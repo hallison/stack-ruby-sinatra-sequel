@@ -8,7 +8,7 @@ Sequel.migration do
       varchar :signature, size: 64, null: false
       boolean :administrator, default: false
       boolean :moderator, default: false
-      timestamp :create_date
+      timestamp :creation_date
       timestamp :update_date
       index [:username]
     end
