@@ -4,6 +4,9 @@ GEM
     backports (3.8.0)
     bcrypt (3.1.11)
     coderay (1.1.1)
+    fuubar (2.3.1)
+      rspec-core (~> 3.0)
+      ruby-progressbar (~> 1.4)
     json (2.1.0)
     mail (2.6.6)
       mime-types (>= 1.16, < 4)
@@ -12,6 +15,12 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     minitest (5.10.3)
+    minitest-display (0.3.1)
+      minitest (~> 5.0)
+    minitest-sequel (0.3.2)
+      minitest (>= 5.7.0)
+      sequel (>= 4.35.0)
+      sequel-paranoid (>= 0.6.2)
     multi_json (1.12.1)
     mustermann (1.0.0)
     pry (0.10.4)
@@ -25,7 +34,13 @@ GEM
     rack-test (0.7.0)
       rack (>= 1.0, < 3)
     rdiscount (2.2.0.1)
+    rspec-core (3.7.1)
+      rspec-support (~> 3.7.0)
+    rspec-support (3.7.1)
+    ruby-progressbar (1.9.0)
     sequel (4.49.0)
+    sequel-paranoid (0.7.0)
+      sequel
     sinatra (2.0.0)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -47,9 +62,12 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt
+  fuubar
   json
   mail
   minitest
+  minitest-display
+  minitest-sequel
   pry
   puma
   rack-test
